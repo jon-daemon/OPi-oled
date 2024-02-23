@@ -58,7 +58,7 @@ class device(object):
     Base class for OLED driver classes
     """
 
-    def __init__(self, port=1, address=0x3C, cmd_mode=0x00, data_mode=0x40):
+    def __init__(self, port=0, address=0x3C, cmd_mode=0x00, data_mode=0x40):
         self.cmd_mode = cmd_mode
         self.data_mode = data_mode
         self.bus = smbus.SMBus(port)
@@ -78,7 +78,7 @@ class device(object):
         device - maximum allowed in one transaction is 32 bytes, so if
         data is larger than this it is sent in chunks.
         """
-        for i in xrange(0, len(data), 32):
+        for i in range(0, len(data), 32):
             self.bus.write_i2c_block_data(self.addr,
                                           self.data_mode,
                                           list(data[i:i+32]))
@@ -128,16 +128,16 @@ class sh1106(device):
         page = 0xB0
         pix = list(image.getdata())
         step = self.width * 8
-        for y in xrange(0, self.pages * step, step):
+        for y in range(0, int(self.pages * step), int(step)):
 
             # move to given page, then reset the column address
-            self.command(page, 0x02, 0x10)
+            self.command(page, 0x00, 0x10)
             page += 1
 
             buf = []
-            for x in xrange(self.width):
+            for x in range(self.width):
                 byte = 0
-                for n in xrange(0, step, self.width):
+                for n in range(0, step, self.width):
                     byte |= (pix[x + y + n] & 0x01) << 8
                     byte >>= 1
 
@@ -193,11 +193,11 @@ class ssd1306(device):
         pix = list(image.getdata())
         step = self.width * 8
         buf = []
-        for y in xrange(0, self.pages * step, step):
+        for y in range(0, self.pages * step, step):
             i = y + self.width-1
             while i >= y:
                 byte = 0
-                for n in xrange(0, step, self.width):
+                for n in range(0, step, self.width):
                     byte |= (pix[i + n] & 0x01) << 8
                     byte >>= 1
 
